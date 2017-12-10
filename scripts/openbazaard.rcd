@@ -1,0 +1,67 @@
+echo #!/bin/sh
+
+. /etc/rc.subr
+
+#PROVIDE: openbazaard openbazaar
+
+name=openbazaard
+user="openbazaar"
+rcvar="${name}_enable"
+ob_dir="/home/${user}/go/src/github.com/OpenBazaar/openbazaar/"
+pidfile="/var/run/${name}.pid"
+daemon_command = "go run openbazaard.go"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+version_cmd="${name}_version"
+extra_commands="status version"
+
+# The model for this was copied from another script... not even sure what this does
+load_rc_config $name
+: ${openbazaard_enable:=no}
+: ${d_msg="Nothing started."}
+
+openbazaard_start()
+{
+  running_pid=$(cat $pidfile)   #Checks if running instance exists
+  if [ $running_pid ]; then
+    echo "PID exists, process running as PID ${running_pid}"
+    exit 1
+  fi
+
+  echo "Starting OpenBazaar daemon..."
+  cd ${ob_dir}
+  command="sudo -u ${user} bash -c 'go run openbazaard.go start > /dev/null 2>&1'"
+}
+
+openbazaard_stop()
+{
+  running_pid=$(cat $pidfile)
+	if [ -z $pidfile ]; then
+		echo "No PID present... OpenBazaar daemon probably not running."
+		exit 1
+	fi
+
+  command="kill ${running_pid}"
+}
+
+openbazaard_status()
+{
+  running_pid=$(cat $pidfile)   #Checks if running instance exists
+  if [ $running_pid ]; then
+    echo "PID exists, process running as PID ${running_pid}"
+    exit 0
+  fi
+
+  echo "OpenBazaar not running."
+}
+
+openbazaard_version()
+{
+  # NOT IMPLEMENTED
+}
+
+run_rc_command "$@"
+eval $command
+echo $! > $pidfile
