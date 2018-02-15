@@ -7,7 +7,7 @@ echo #!/bin/sh
 name=openbazaard
 user="openbazaar"
 rcvar="${name}_enable"
-ob_dir="/home/${user}/go/src/github.com/OpenBazaar/openbazaar/"
+ob_dir="/home/${user}/go/src/github.com/OpenBazaar/openbazaar-go/"
 pidfile="/var/run/${name}.pid"
 daemon_command = "go run openbazaard.go"
 
@@ -31,7 +31,7 @@ openbazaard_start()
   fi
 
   echo "Starting OpenBazaar daemon..."
-  cd ${ob_dir}
+  cd $ob_dir
   command="sudo -u ${user} bash -c 'go run openbazaard.go start > /dev/null 2>&1'"
 }
 
